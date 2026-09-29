@@ -1,0 +1,7 @@
+interface:
+  display_name: "可追溯内容生产"
+  short_description: "将观点、资料包与已有草稿转化为可追溯、可审校、可发布的内容"
+  default_prompt: "Use $traceable-content-production to turn my notes into a traceable publishable article."
+
+policy:
+  allow_implicit_invocation: true
