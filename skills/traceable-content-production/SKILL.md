@@ -1,6 +1,11 @@
 ---
 name: traceable-content-production
 description: Use when turning a viewpoint, notes, source packet, web excerpts, or an existing draft into publishable long-form content where evidence, logic, account positioning, personal preferences, or revision checkpoints matter.
+license: MIT
+metadata:
+  author: joshlindazhuang-cmd
+  version: "0.2.0"
+  runtime-requirements: "Agent Skills support and local Markdown read/write access; web evidence checks require network or search tools."
 ---
 
 # 可追溯内容生产

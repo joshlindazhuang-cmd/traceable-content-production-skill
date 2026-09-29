@@ -1,10 +1,12 @@
 # Traceable Content Production Skill
 
-一套面向观点、资料包和已有草稿的可追溯 AI 内容生产 Skill。它帮助 Codex 自动识别输入类型，完成事实、逻辑、立场与表达审校，并在安全通过后交付完整成稿。
+一套基于 [Agent Skills 开放规范](https://agentskills.io/specification)、面向观点、资料包和已有草稿的可追溯 AI 内容生产 Skill。它帮助兼容的 AI Agent 自动识别输入类型，完成事实、逻辑、立场与表达审校，并在安全通过后交付完整成稿。
 
 它不是固定文风模板，也不以“尽快生成一篇看起来完整的文章”为目标。账号定位和个人偏好可以配置，但不能覆盖事实诚信、证据边界和来源归属。
 
-## V0.1.0 能做什么
+核心 `SKILL.md` 与规则文件不依赖某个模型品牌。`agents/openai.yaml` 只是 OpenAI 产品可选读取的界面元数据，其他工具可以忽略。
+
+## V0.2.0 能做什么
 
 - 自动路由观点种子、丰富材料包、已有草稿和混合文字输入；
 - 区分用户事实、用户观点、第三方材料、外部证据、编辑推演与虚构示例；
@@ -25,29 +27,62 @@
 
 这些能力属于后续版本，不计入当前文字版的通过结论。
 
-## 安装
+## 兼容范围
 
-### 让 Codex 安装
+当前核心格式可用于原生支持 Agent Skills 的工具，包括 Codex、Claude Code、Cursor、Gemini CLI 和 GitHub Copilot。不同工具的安装入口并不相同；“遵循同一文件规范”不等于“一条安装命令适用于所有软件”。
 
-把下面的仓库路径交给 Codex，并要求安装其中的 Skill：
+完整兼容边界和官方依据见[跨工具兼容与安装](docs/compatibility.md)。尚未列出的工具只有在支持 Agent Skills 标准、允许导入 Skill 文件夹，或允许把说明作为自定义提示导入时才能使用。
+
+## 推荐安装
+
+### 通用本地安装
+
+Codex、Cursor、Gemini CLI 和 GitHub Copilot 都支持 `~/.agents/skills/` 这一跨工具用户目录。一次复制即可供这些本地工具发现：
+
+```bash
+git clone https://github.com/joshlindazhuang-cmd/traceable-content-production-skill.git
+mkdir -p ~/.agents/skills
+cp -R traceable-content-production-skill/skills/traceable-content-production ~/.agents/skills/
+```
+
+Claude Code 使用自己的用户目录：
+
+```bash
+mkdir -p ~/.claude/skills
+cp -R traceable-content-production-skill/skills/traceable-content-production ~/.claude/skills/
+```
+
+如果只想让项目成员使用，把同一个 Skill 文件夹复制到项目内的 `.agents/skills/`；Claude Code 项目可放入 `.claude/skills/`。
+
+### 工具原生命令
+
+Gemini CLI 支持直接从 GitHub 安装：
+
+```bash
+gemini skills install https://github.com/joshlindazhuang-cmd/traceable-content-production-skill.git --path skills/traceable-content-production
+```
+
+GitHub CLI 2.90.0 及以上版本可让 Copilot 从仓库选择并安装 Skill：
+
+```bash
+gh skill install joshlindazhuang-cmd/traceable-content-production-skill
+```
+
+每个 GitHub Release 同时提供只包含单一顶层 Skill 文件夹的 `.zip` 和 `.skill` 文件；前者适合通用下载与导入，后者可供支持该包格式的工具安装。
+
+Codex 可以调用 `$skill-installer` 并提供以下 Skill 路径；Cursor 和 Claude Code 也可以按其官方 Skill 目录手动安装：
 
 ```text
 https://github.com/joshlindazhuang-cmd/traceable-content-production-skill/tree/main/skills/traceable-content-production
 ```
 
-### 手动安装
-
-```bash
-git clone https://github.com/joshlindazhuang-cmd/traceable-content-production-skill.git
-mkdir -p ~/.codex/skills
-cp -R traceable-content-production-skill/skills/traceable-content-production ~/.codex/skills/
-```
-
-安装后新开一个 Codex 任务，并可明确调用：
+安装后新开或刷新对应 Agent 会话，并可明确调用：
 
 ```text
 使用 $traceable-content-production，把下面的观点和材料发展成一篇可追溯的文章：……
 ```
+
+Claude Code 通常使用 `/traceable-content-production` 调用；不同工具的显式调用符号可能不同，不影响 Skill 的自动发现逻辑。
 
 ## 私有配置
 
@@ -75,7 +110,7 @@ cp -R traceable-content-production-skill/skills/traceable-content-production ~/.
 
 ## 测试状态
 
-V0.1.0 已完成人工 RED / GREEN / REFACTOR 测试以及一次全新工作区端到端冒烟测试，覆盖偏好确认后持久化、不可信材料边界、暂停与恢复、完整成稿和结构化追溯。详见 [验证记录](docs/verification.md)。
+文字工作流已完成人工 RED / GREEN / REFACTOR 测试以及一次全新工作区端到端冒烟测试，覆盖偏好确认后持久化、不可信材料边界、暂停与恢复、完整成稿和结构化追溯。V0.2.0 另外通过开放 Agent Skills 元数据校验和发布包检查。详见 [验证记录](docs/verification.md)。
 
 当前结论是“文字主链路可进入外部测试”，不是“所有场景永久无缺陷”。欢迎通过 Issue 提交可复现的输入、实际输出、期望行为和使用环境。
 
@@ -83,6 +118,7 @@ V0.1.0 已完成人工 RED / GREEN / REFACTOR 测试以及一次全新工作区�
 
 - [文字工程契约](docs/text-engineering-contracts.md)
 - [验证记录与已知边界](docs/verification.md)
+- [跨工具兼容与安装](docs/compatibility.md)
 
 ## 许可证
 
