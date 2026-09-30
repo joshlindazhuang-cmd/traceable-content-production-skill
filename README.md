@@ -1,21 +1,45 @@
 # Traceable Content Production Skill
 
-一套基于 [Agent Skills 开放规范](https://agentskills.io/specification)、面向观点、资料包和已有草稿的可追溯 AI 内容生产 Skill。它帮助兼容的 AI Agent 自动识别输入类型，完成事实、逻辑、立场与表达审校，并在安全通过后交付完整成稿。
+一套基于 [Agent Skills 开放规范](https://agentskills.io/specification)、面向观点、资料包和已有草稿的可追溯 AI 内容生产 Skill。它帮助兼容的 AI Agent 理解材料、核查事实与逻辑、处理立场边界、设计表达，并在安全通过后交付完整成稿。
 
-它不是固定文风模板，也不以“尽快生成一篇看起来完整的文章”为目标。账号定位和个人偏好可以配置，但不能覆盖事实诚信、证据边界和来源归属。
+它不是固定文风模板。即使没有账号定位和个人偏好，也能凭单篇材料独立完成写作；账号背景、历史内容和个人偏好只在相关且适配时作为柔性增强，不能覆盖事实诚信、证据边界和本篇明确要求。
 
 核心 `SKILL.md` 与规则文件不依赖某个模型品牌。`agents/openai.yaml` 只是 OpenAI 产品可选读取的界面元数据，其他工具可以忽略。
 
-## V0.2.0 能做什么
+## V0.3.0 能做什么
 
 - 自动路由观点种子、丰富材料包、已有草稿和混合文字输入；
 - 区分用户事实、用户观点、第三方材料、外部证据、编辑推演与虚构示例；
 - 执行事实证据、逻辑链条、立场边界、表达呈现四项审查；
-- 使用 `PASS / REVISE / DISCUSS / BLOCK` 状态门禁；
-- 非 `PASS` 时一次说明全部关键问题，只提出一个最高价值问题并暂停；
+- 使用 `PASS / REVISE / DISCUSS / BLOCK` 状态门禁；非 `PASS` 时一次说明全部关键问题，只提出一个最高价值问题并暂停；
 - `PASS` 时交付完整文章、准确标题和必要的来源或不确定性说明；
-- 在本地工作区保存账号档案、经用户确认的表达偏好和结构化运行记录；
-- 保留作者声音，同时避免虚构作者经历、心理、数据、案例或权威结论。
+- 首次实际调用显示重点完整的首次启用说明卡；用户已经提交材料时，说明后在同一轮继续工作；
+- 无需先建档或选择账号即可独立写好单篇文章；
+- 为多个账号分别保存读者、价值承诺、历史观点和账号偏好，避免互相串用；
+- 区分本篇临时要求、账号偏好与跨账号个人偏好，只有用户确认后才持久化；
+- 保存结构化运行记录，同时避免虚构作者经历、心理、数据、案例或权威结论。
+
+## 首次使用会发生什么
+
+首次调用时，Skill 会显示一张简短说明卡，集中解释：
+
+1. 它能完成哪些工作；
+2. 适合观点、材料包、草稿和多账号等哪些场景；
+3. 它重点解决哪些事实、逻辑、表达和模板化问题；
+4. 如何直接开始、何时会暂停，以及当前版本的能力边界。
+
+说明卡不是入门问卷，也不会打断已经提交的任务。用户可以直接发送选题、观点、材料或草稿；只有缺失信息会改变核心立场或文章目标、无法可靠推断且错判会明显失真时，系统才暂停询问。
+
+## 独立写作与个性化
+
+系统先把本篇文章本身写对、写好，再按需调用相关上下文：
+
+- **单篇任务**决定文章真正要表达什么；
+- **账号档案**只补充相关读者、价值承诺、发布门槛和历史观点；
+- **跨账号个人偏好**只在适合当前题材时调整表达；
+- **本篇临时要求**只影响本篇，不会自动污染长期档案。
+
+没有账号档案时，系统照常独立完成。运营多个账号时，可以明确账号名称；若多个账号都会明显影响写法且系统无法可靠判断，系统才会暂停并询问一次。临时文章也可以指定 `account: none`。
 
 ## 当前不包含
 
@@ -25,56 +49,29 @@
 - 自动发布；
 - 对参考文章进行文风迁移或仿写。
 
-这些能力属于后续版本，不计入当前文字版的通过结论。
+这些能力属于后续版本，不计入当前文字版的通过结论。网络证据补充还取决于当前 AI 工具是否具备搜索能力。
 
-## 兼容范围
+## 推荐安装与更新
 
-当前核心格式可用于原生支持 Agent Skills 的工具，包括 Codex、Claude Code、Cursor、Gemini CLI 和 GitHub Copilot。不同工具的安装入口并不相同；“遵循同一文件规范”不等于“一条安装命令适用于所有软件”。
-
-完整兼容边界和官方依据见[跨工具兼容与安装](docs/compatibility.md)。尚未列出的工具只有在支持 Agent Skills 标准、允许导入 Skill 文件夹，或允许把说明作为自定义提示导入时才能使用。
-
-## 推荐安装
-
-### 通用本地安装
-
-Codex、Cursor、Gemini CLI 和 GitHub Copilot 都支持 `~/.agents/skills/` 这一跨工具用户目录。一次复制即可供这些本地工具发现：
-
-```bash
-git clone https://github.com/joshlindazhuang-cmd/traceable-content-production-skill.git
-mkdir -p ~/.agents/skills
-cp -R traceable-content-production-skill/skills/traceable-content-production ~/.agents/skills/
-```
-
-Claude Code 使用自己的用户目录：
-
-```bash
-mkdir -p ~/.claude/skills
-cp -R traceable-content-production-skill/skills/traceable-content-production ~/.claude/skills/
-```
-
-如果只想让项目成员使用，把同一个 Skill 文件夹复制到项目内的 `.agents/skills/`；Claude Code 项目可放入 `.claude/skills/`。
-
-### 工具原生命令
-
-Gemini CLI 支持直接从 GitHub 安装：
-
-```bash
-gemini skills install https://github.com/joshlindazhuang-cmd/traceable-content-production-skill.git --path skills/traceable-content-production
-```
-
-GitHub CLI 2.90.0 及以上版本可让 Copilot 从仓库选择并安装 Skill：
+GitHub CLI 2.90.0 及以上版本可以在交互式终端中用最短命令发现并选择本仓库唯一的 Skill：
 
 ```bash
 gh skill install joshlindazhuang-cmd/traceable-content-production-skill
 ```
 
-每个 GitHub Release 同时提供只包含单一顶层 Skill 文件夹的 `.zip` 和 `.skill` 文件；前者适合通用下载与导入，后者可供支持该包格式的工具安装。
+需要明确安装给某个 AI 工具或安装到用户级目录时，再增加对应参数。例如：
 
-Codex 可以调用 `$skill-installer` 并提供以下 Skill 路径；Cursor 和 Claude Code 也可以按其官方 Skill 目录手动安装：
-
-```text
-https://github.com/joshlindazhuang-cmd/traceable-content-production-skill/tree/main/skills/traceable-content-production
+```bash
+gh skill install joshlindazhuang-cmd/traceable-content-production-skill traceable-content-production --agent claude-code --scope user
 ```
+
+安装得到的是当时版本，不会在每次调用时实时读取仓库。通过 GitHub CLI 安装的副本带有来源信息，后续可检查并更新：
+
+```bash
+gh skill update traceable-content-production
+```
+
+完整安装方式、手动复制目录和跨工具边界见[跨工具兼容与安装](docs/compatibility.md)。每个 GitHub Release 同时提供只包含单一顶层 Skill 文件夹的 `.zip` 和 `.skill` 文件。
 
 安装后新开或刷新对应 Agent 会话，并可明确调用：
 
@@ -91,13 +88,15 @@ Claude Code 通常使用 `/traceable-content-production` 调用；不同工具�
 ```text
 .content-system/
 ├── .gitignore
+├── system-state.md
 ├── user-preferences.md
 ├── accounts/
-│   └── default.md
+│   ├── index.md
+│   └── <account-id>.md
 └── runs/
 ```
 
-这些文件保存使用者自己的账号信息、写作偏好和运行记录，默认不会进入 Git。仓库中只提供空白模板，不包含作者个人配置。
+这些文件保存说明卡状态、跨账号个人偏好、多个账号档案和运行记录，默认不会进入 Git。仓库中只提供空白模板，不包含作者个人配置。旧版 `accounts/default.md` 会保留并登记，不会被自动覆盖、删除或改名。
 
 ## 关键交互规则
 
@@ -106,11 +105,11 @@ Claude Code 通常使用 `/traceable-content-production` 调用；不同工具�
 - `DISCUSS`：存在多个合理方向且无法可靠替用户选择，暂停等待用户；
 - `BLOCK`：内容必须依赖伪造、欺骗、明显错误或污名化才能成立，不生成可发布稿。
 
-系统只在缺失信息会改变核心立场或目标、无法可靠推断且错判会明显失真时提问。其余结构、语气和篇幅由系统结合文章任务、账号策略和已确认偏好自动处理。
+事实诚信、证据边界和来源归属是底层规则。账号配置、个人偏好和流量目标都不能覆盖这些规则。
 
 ## 测试状态
 
-文字工作流已完成人工 RED / GREEN / REFACTOR 测试以及一次全新工作区端到端冒烟测试，覆盖偏好确认后持久化、不可信材料边界、暂停与恢复、完整成稿和结构化追溯。V0.2.0 另外通过开放 Agent Skills 元数据校验和发布包检查。详见 [验证记录](docs/verification.md)。
+文字主链路已完成此前的人工 RED / GREEN / REFACTOR 测试和端到端冒烟测试。V0.3.0 另外加入可重复的发布契约检查，覆盖首次说明、单篇独立运行、多账号隔离、偏好作用域和旧配置迁移；跨 AI 工具的实际说明卡呈现仍需继续外测。详见[验证记录](docs/verification.md)。
 
 当前结论是“文字主链路可进入外部测试”，不是“所有场景永久无缺陷”。欢迎通过 Issue 提交可复现的输入、实际输出、期望行为和使用环境。
 

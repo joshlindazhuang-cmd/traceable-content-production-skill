@@ -6,6 +6,8 @@
 
 GitHub Release 另外提供同一目录的 `.zip` 与 `.skill` 包。压缩包只有一个顶层 `traceable-content-production/` 文件夹，便于只接受单 Skill 包的客户端导入。
 
+首次启用说明卡发生在 Skill 被 AI 实际调用时，而不是安装文件完成时。不同宿主对自动发现和首次调用的处理可能不同；没有自动调用的工具可通过显式命令启动一次。
+
 兼容性分成两层：
 
 1. **格式兼容**：工具能够识别 Agent Skills 标准的 `SKILL.md` 和同目录资源；
@@ -62,6 +64,18 @@ Gemini CLI 可直接安装仓库内的 Skill 子目录：
 gemini skills install https://github.com/joshlindazhuang-cmd/traceable-content-production-skill.git --path skills/traceable-content-production
 ```
 
+GitHub CLI 的最短交互式安装命令为：
+
+```bash
+gh skill install joshlindazhuang-cmd/traceable-content-production-skill
+```
+
+通过该命令安装的 Skill 会记录来源，但不会实时同步仓库。发布新版本后可运行：
+
+```bash
+gh skill update traceable-content-production
+```
+
 ## 对其他 AI 软件的判断
 
 满足下列任一条件时，可以尝试安装：
@@ -74,4 +88,4 @@ gemini skills install https://github.com/joshlindazhuang-cmd/traceable-content-p
 
 ## 尚未逐工具实测的边界
 
-V0.2.0 已验证开放规范结构、文件引用、发布压缩包和 Codex 运行链路。Claude Code、Cursor、Gemini CLI 与 GitHub Copilot 的安装方式来自各自官方文档，但本版本尚未在每一种客户端和版本上逐一完成运行时外测。发现差异时，请提交工具名称、版本、安装方式和可复现现象。
+V0.2.0 已验证开放规范结构、文件引用、发布压缩包和 Codex 运行链路。V0.3.0 已验证新增文件、引用、安装包和首次说明契约；首次说明、多账号选择和档案持久化在不同客户端中的实际行为仍需分别外测。Claude Code、Cursor、Gemini CLI 与 GitHub Copilot 的安装方式来自各自官方文档。发现差异时，请提交工具名称、版本、安装方式和可复现现象。
